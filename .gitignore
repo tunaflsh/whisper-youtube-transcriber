@@ -166,3 +166,6 @@ cython_debug/
 audios/
 jsons/
 timestamps/
+
+# Tests/Experiments
+text*.txt
