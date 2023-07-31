@@ -1,0 +1,22 @@
+{
+    "task": "string",
+    "language": "string",
+    "duration": "number",
+    "text": "string",
+    "segments": [
+        {
+            "id": "integer",
+            "seek": "integer",
+            "start": "number",
+            "end": "number",
+            "text": "string",
+            "tokens": [
+                "integer"
+            ],
+            "temperature": "number",
+            "avg_logprob": "number",
+            "compression_ratio": "number",
+            "no_speech_prob": "number"
+        }
+    ]
+}
