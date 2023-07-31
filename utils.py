@@ -1,4 +1,6 @@
+import json
 import re
+import subprocess
 
 
 def get_json_skeleton(data, root=True):
@@ -35,8 +37,6 @@ def get_json_skeleton(data, root=True):
         return skeleton
     if type(data[0]) == list:
         lengths = [len(item) for item in data]
-        if root:
-            skeleton["len"] = len(data)
         skeleton["range"] = (min(lengths), max(lengths))
         skeleton["items"] = get_json_skeleton(
             [x for item in data for x in item], root=False
@@ -48,3 +48,50 @@ def get_json_skeleton(data, root=True):
     skeleton["len"] = len(data)
     skeleton["items"] = type(data[0]).__name__
     return skeleton
+
+
+def extract_metadata(file_path):
+    meta_data = subprocess.check_output(
+        [
+            "ffprobe",
+            "-v",
+            "quiet",
+            "-print_format",
+            "json",
+            "-show_format",
+            "-show_streams",
+            file_path,
+        ]
+    )
+    return json.loads(meta_data)
+
+
+def extract_url_from_metadata(file_path):
+    metadata = extract_metadata(file_path)
+    try:
+        url = metadata["format"]["tags"]["PURLf"]
+    except KeyError as e:
+        file = file_path.replace('"', '\\"')
+        print(f'KeyError: {e} in the metadata of "{file}"')
+        url = None
+    return url
+
+
+def yt_dlp(url):
+    output = subprocess.check_output(
+        [
+            "yt-dlp",
+            "--format",
+            "139",
+            "--paths",
+            "./audios",
+            "--output",
+            "%(id)s.%(ext)s",
+            url,
+        ]
+    )
+    destination = re.search(
+        r"\[download\] (?:Destination: (.*)|(.*) has already been downloaded)",
+        output.decode("utf-8"),
+    )
+    return destination.group(1) or destination.group(2)
