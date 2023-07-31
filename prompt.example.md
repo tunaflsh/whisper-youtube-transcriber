@@ -11,3 +11,4 @@
 - Refrain from using special characters s.a. `()`, `[]`, `~`, `&` etc.
 - End the prompt with `Starting...`
 - Keep the prompt short
+- Specify language with `-l` flag. Performes much worse without it.
