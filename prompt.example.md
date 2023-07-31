@@ -8,6 +8,7 @@
 
 ## Notes
 
+- Empty prompt generally works well. Suboptimal prompts might make it worse.
 - Refrain from using special characters s.a. `()`, `[]`, `~`, `&` etc.
 - Indicate the start of the audio, e.g. `Starting...`
 - Use `Intro music` to indicate the audio starts with music with no speech
