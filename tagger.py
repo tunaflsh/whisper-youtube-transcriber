@@ -80,7 +80,7 @@ with open(tag_file, 'w') as f:
         h, m = divmod(m, 60)
         formatted_timestamp = (
             f"{h:2d}:{m:02d}:{s:02d}" if h
-            else f"   {m:2d}:{s:02d}"
+            else f"{m:2d}:{s:02d}"
         )
         text = segment['text']
         f.write(f"[{formatted_timestamp}]({url}&t={timestamp}s) {text}\\\n")
