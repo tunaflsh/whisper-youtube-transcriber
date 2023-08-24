@@ -69,7 +69,7 @@ def extract_metadata(file_path):
 def extract_url_from_metadata(file_path):
     metadata = extract_metadata(file_path)
     try:
-        url = metadata["format"]["tags"]["PURLf"]
+        url = metadata["format"]["tags"]["comment"]
     except KeyError as e:
         file = file_path.replace('"', '\\"')
         print(f'KeyError: {e} in the metadata of "{file}"')
@@ -87,6 +87,7 @@ def yt_dlp(url):
             "./audios",
             "--output",
             "%(id)s.%(ext)s",
+            "--embed-metadata",
             url,
         ]
     )
