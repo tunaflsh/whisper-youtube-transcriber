@@ -10,7 +10,7 @@ from tagger import create_tags_from_transcript
 
 # Set up argument parser
 parser = argparse.ArgumentParser(
-    description="Transcribe an audio source to text using the OpenAI API."
+    description="""Transcribes an audio source to text using the OpenAI's Whisper API. The result is saved in the timestamps/ folder as a Markdown file. In case the input is a YouTube URL, the timestamps link to the video at the corresponding time."""
 )
 parser.add_argument(
     "input",
