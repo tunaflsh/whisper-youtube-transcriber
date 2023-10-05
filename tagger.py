@@ -5,13 +5,17 @@ import os
 from audio_processing import extract_url_from_metadata
 
 
+def format_seconds(seconds: int):
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    return f"{h:d}:{m:02d}:{s:02d}" if h else f"{m:d}:{s:02d}"
+
+
 def create_tags_from_transcription(url, transcription):
     tags = []
     for segment in transcription["segments"]:
         timestamp = int(segment["start"])
-        m, s = divmod(timestamp, 60)
-        h, m = divmod(m, 60)
-        formatted_timestamp = f"{h:d}:{m:02d}:{s:02d}" if h else f"{m:d}:{s:02d}"
+        formatted_timestamp = format_seconds(timestamp)
         timestamped_url = f"{url}&t={timestamp}s" if url else ""
         text = segment["text"]
         tags.append(f"[{formatted_timestamp}]({timestamped_url}) {text}")
