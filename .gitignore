@@ -167,5 +167,6 @@ audios/
 jsons/
 timestamps/
 
-# Tests/Experiments
+# Tests/Experiments/Data
 text*.txt
+*.csv

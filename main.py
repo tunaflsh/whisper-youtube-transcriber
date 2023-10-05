@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 import argparse
+import glob
 import json
 import os
 import re
 
-from audio_processing import extract_url_from_metadata, yt_dlp
-from transcribe import transcribe_audio, translate_audio
+from audio_processing import extract_url_from_metadata, getid, yt_dlp
 from tagger import create_tags_from_transcription
+from transcribe import transcribe_audio, translate_audio
+from transcription_processing import filter_no_speech
 
 # Set up argument parser
 parser = argparse.ArgumentParser(
@@ -40,17 +42,29 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+
+def check_not_overwrite(file):
+    if (files := glob.glob(file)) and input(
+        f'File "{files[0]}" already exists. Overwrite? Default is "no". [(y)es/(n)o] '
+    ).lower() not in ["y", "yes"]:
+        return files[0]
+    return None
+
+
 # Check if input is a URL
 if re.match(r"^https?://", args.input):
     # Download the audio file
     url = args.input
-    file = yt_dlp(url)
+    video_id = getid(url)
+
+    # Check if ./audios/{video_id}.* exists
+    audio_file = check_not_overwrite(f"./audios/{video_id}.*") or yt_dlp(url)
 else:
-    file = args.input
-    url = extract_url_from_metadata(file)
+    audio_file = args.input
+    url = extract_url_from_metadata(audio_file)
 
 # Get the base name of the audio file
-base_name, extension = os.path.splitext(os.path.basename(file))
+base_name, extension = os.path.splitext(os.path.basename(audio_file))
 
 if extension not in [".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".wav", ".webm"]:
     raise argparse.ArgumentTypeError(
@@ -58,20 +72,46 @@ if extension not in [".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".wav", ".webm"]:
     )
 
 if args.translate:
-    # Translate the audio file to English
-    transcription = translate_audio(file, args.prompt)
     base_name += "[English]"
-else:
-    # Transcribe the audio file to text
-    transcription = transcribe_audio(file, args.prompt, args.language)
 
-# Write the transcription to a file
-with open(f"jsons/{base_name}.json", "w") as file:
-    json.dump(transcription, file, indent=4, ensure_ascii=False)
+# Check if ./jsons/{base_name}.json exists
+json_file = f"./jsons/{base_name}.json"
+if check_not_overwrite(json_file):
+    with open(json_file) as f:
+        transcription = json.load(f)
+else:
+    transcription = (
+        translate_audio(audio_file, args.prompt)
+        if args.translate
+        else transcribe_audio(audio_file, args.prompt, args.language)
+    )
+
+# Check if ./jsons/{base_name}-no_speech.json exists
+json_file_no_speech = f"./jsons/{base_name}-no_speech.json"
+if check_not_overwrite(json_file_no_speech):
+    with open(json_file) as f:
+        speech = json.load(f)
+
+    with open(json_file_no_speech) as f:
+        no_speech = json.load(f)
+else:
+    # Filter out segments with no speech
+    no_speech, speech = filter_no_speech(transcription)
+
+    # Write the transcription to a file
+    with open(json_file, "w") as f:
+        json.dump(speech, f, indent=4, ensure_ascii=False)
+
+    with open(json_file_no_speech, "w") as f:
+        json.dump(no_speech, f, indent=4, ensure_ascii=False)
 
 # Create tags from the transcription
-tags = create_tags_from_transcription(url, transcription)
+speech_tags = create_tags_from_transcription(url, speech)
+no_speech_tags = create_tags_from_transcription(url, no_speech)
 
 # Write the tags to a file
-with open(f"timestamps/{base_name}.md", "w") as file:
-    print(*tags, sep="\\\n", file=file, end="\n")
+with open(f"timestamps/{base_name}.md", "w") as audio_file:
+    print(*speech_tags, sep="\\\n", file=audio_file, end="\n")
+
+with open(f"timestamps/{base_name}-no_speech.md", "w") as audio_file:
+    print(*no_speech_tags, sep="\\\n", file=audio_file, end="\n")
