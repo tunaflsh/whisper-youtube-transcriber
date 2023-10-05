@@ -22,23 +22,23 @@ def split_audio(file, split_sec=3600):
     return glob.glob(f'{root}-*{ext}')
 
 
-def merge(transcripts):
-    transcript = {
-        "task": transcripts[0]["task"],
-        "language": transcripts[0]["language"],
+def merge(transcriptions):
+    transcription = {
+        "task": transcriptions[0]["task"],
+        "language": transcriptions[0]["language"],
         "duration": 0.00,
         "text": "",
         "segments": [],
     }
 
     id = 0
-    for t in transcripts:
+    for t in transcriptions:
         for s in t["segments"]:
-            transcript["segments"].append({
+            transcription["segments"].append({
                 "id": id,
-                "seek": s["seek"] + transcript["duration"] * 100,
-                "start": s["start"] + transcript["duration"],
-                "end": s["end"] + transcript["duration"],
+                "seek": s["seek"] + transcription["duration"] * 100,
+                "start": s["start"] + transcription["duration"],
+                "end": s["end"] + transcription["duration"],
                 "text": s["text"],
                 "tokens": s["tokens"],
                 "temperature": s["temperature"],
@@ -48,10 +48,10 @@ def merge(transcripts):
             })
             id += 1
 
-        transcript["duration"] += t["duration"]
-        transcript["text"] += t["text"]
+        transcription["duration"] += t["duration"]
+        transcription["text"] += t["text"]
 
-    return transcript
+    return transcription
 
 
 def transcribe_audio(file, prompt=None, language=None):

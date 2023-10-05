@@ -6,7 +6,7 @@ Markdown file. In case the input is a YouTube URL, the timestamps link to the vi
 ## Result Folders
 
 - `audios/` folder contains extracted audio files from YouTube videos when the input is a YouTube URL.
-- `jsons/` folder contains raw responses from Whisper API transcribing/translating the audio files. The structure of the responses is shown in [`transcript.example.json`](https://github.com/tunaflsh/whisper-youtube-transcriber/blob/main/transcript.example.json).
+- `jsons/` folder contains raw responses from Whisper API transcribing/translating the audio files. The structure of the responses is shown in [`transcription.example.json`](https://github.com/tunaflsh/whisper-youtube-transcriber/blob/main/transcription.example.json).
 - `timestamps/` folder contains the resulting Markdown files, that includes transcription and their timestamps. The timestamps link to the YouTube video at the matching times when the input when the input is a YouTube URL or the input file has the source YouTube URL embedded to the metadata under `format:tags:comment`.
 
 ## Usage

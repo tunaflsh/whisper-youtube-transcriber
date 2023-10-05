@@ -6,7 +6,7 @@ import re
 
 from audio_processing import extract_url_from_metadata, yt_dlp
 from transcribe import transcribe_audio, translate_audio
-from tagger import create_tags_from_transcript
+from tagger import create_tags_from_transcription
 
 # Set up argument parser
 parser = argparse.ArgumentParser(
@@ -59,18 +59,18 @@ if extension not in [".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".wav", ".webm"]:
 
 if args.translate:
     # Translate the audio file to English
-    transcript = translate_audio(file, args.prompt)
+    transcription = translate_audio(file, args.prompt)
     base_name += "[English]"
 else:
     # Transcribe the audio file to text
-    transcript = transcribe_audio(file, args.prompt, args.language)
+    transcription = transcribe_audio(file, args.prompt, args.language)
 
-# Write the transcript to a file
+# Write the transcription to a file
 with open(f"jsons/{base_name}.json", "w") as file:
-    json.dump(transcript, file, indent=4, ensure_ascii=False)
+    json.dump(transcription, file, indent=4, ensure_ascii=False)
 
-# Create tags from the transcript
-tags = create_tags_from_transcript(url, transcript)
+# Create tags from the transcription
+tags = create_tags_from_transcription(url, transcription)
 
 # Write the tags to a file
 with open(f"timestamps/{base_name}.md", "w") as file:

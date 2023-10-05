@@ -5,9 +5,9 @@ import os
 from audio_processing import extract_url_from_metadata
 
 
-def create_tags_from_transcript(url, transcript):
+def create_tags_from_transcription(url, transcription):
     tags = []
-    for segment in transcript["segments"]:
+    for segment in transcription["segments"]:
         timestamp = int(segment["start"])
         m, s = divmod(timestamp, 60)
         h, m = divmod(m, 60)
@@ -31,9 +31,9 @@ if __name__ == "__main__":
     url = extract_url_from_metadata(args)
 
     with open(json_file) as f:
-        transcript = json.load(f)
+        transcription = json.load(f)
 
-    tags = create_tags_from_transcript(url, transcript)
+    tags = create_tags_from_transcription(url, transcription)
 
     with open(tag_file, "w") as f:
         print(*tags, sep="\\\n", file=f, end="\n")
