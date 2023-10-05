@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 
-from utils import extract_url_from_metadata
+from audio_processing import extract_url_from_metadata
 
 
 def create_tags_from_transcript(url, transcript):

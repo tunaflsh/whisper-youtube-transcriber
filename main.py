@@ -4,7 +4,7 @@ import json
 import os
 import re
 
-from utils import extract_url_from_metadata, yt_dlp
+from audio_processing import extract_url_from_metadata, yt_dlp
 from transcribe import transcribe_audio, translate_audio
 from tagger import create_tags_from_transcript
 
