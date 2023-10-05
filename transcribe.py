@@ -29,13 +29,10 @@ def merge(transcriptions):
         "duration": 0.00,
         "text": "",
         "segments": [],
-        "split_points": [],
     }
 
     id = 0
     for t in transcriptions:
-        transcription["split_points"].append(id)
-
         for s in t["segments"]:
             transcription["segments"].append({
                 "id": id,

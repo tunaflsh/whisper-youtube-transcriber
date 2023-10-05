@@ -5,9 +5,9 @@ Markdown file. In case the input is a YouTube URL, the timestamps link to the vi
 
 ## Result Folders
 
-- `audios/` folder contains extracted audio files from YouTube videos when the input is a YouTube URL.
-- `jsons/` folder contains raw responses from Whisper API transcribing/translating the audio files. The structure of the responses is shown in [`transcription.example.json`](https://github.com/tunaflsh/whisper-youtube-transcriber/blob/main/transcription.example.json).
-- `timestamps/` folder contains the resulting Markdown files, that includes transcription and their timestamps. The timestamps link to the YouTube video at the matching times when the input when the input is a YouTube URL or the input file has the source YouTube URL embedded to the metadata under `format:tags:comment`.
+- `audios/` folder contains extracted audio files from YouTube videos when the input is a YouTube URL. Large audio files are split into smaller chunks are also saved here.
+- `jsons/` folder contains responses from Whisper API transcribing/translating the audio files. The data follows the schema in [`transcription.schema.json`](https://github.com/tunaflsh/whisper-youtube-transcriber/blob/main/transcription.example.json). Some non-speech audio segments may be falsely transcribed as speech. These segments are filtered out and saved into `json/*-no_speech.json` files.
+- `timestamps/` folder contains the resulting Markdown files, that includes transcription and their timestamps. The timestamps link to the YouTube video at the matching times when the input when the input is a YouTube URL or the input file has the source YouTube URL embedded to the metadata under `format:tags:comment`. The `*-no_speech.json` files are also timestamped and saved here as `timestamps/*-no_speech.md`.
 
 ## Usage
 
@@ -29,5 +29,6 @@ options:
   -t, --translate       Translate the audio file to English.
 ```
 
-For practices and examples how to `--prompt` the Whisper model, look at [`prompt.example.md`](https://github.com/tunaflsh/whisper-youtube-transcriber/blob/main/prompt.example.md).\
-**TAKE WITH A GRAIN OF SALT! It's incomplete and may not be accurate or work differently depending on the context.**
+Prompt examples can be found in [`prompt.example.md`](https://github.com/tunaflsh/whisper-youtube-transcriber/blob/main/prompt.example.md).
+> [!NOTE]
+> The examples are not comprehensive and may not work in some contexts.
