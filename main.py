@@ -5,7 +5,7 @@ import os
 import re
 
 from utils import extract_url_from_metadata, yt_dlp
-from transcribe import transcribe_audio_to_text, translate_audio_to_english
+from transcribe import transcribe_audio, translate_audio
 from tagger import create_tags_from_transcript
 
 # Set up argument parser
@@ -59,11 +59,11 @@ if extension not in [".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".wav", ".webm"]:
 
 if args.translate:
     # Translate the audio file to English
-    transcript = translate_audio_to_english(file, args.prompt)
+    transcript = translate_audio(file, args.prompt)
     base_name += "[English]"
 else:
     # Transcribe the audio file to text
-    transcript = transcribe_audio_to_text(file, args.prompt, args.language)
+    transcript = transcribe_audio(file, args.prompt, args.language)
 
 # Write the transcript to a file
 with open(f"jsons/{base_name}.json", "w") as file:
