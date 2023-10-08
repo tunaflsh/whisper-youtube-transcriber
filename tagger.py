@@ -1,7 +1,8 @@
 import argparse
-import json
 import os
+import re
 
+import json
 from audio_processing import extract_url_from_metadata
 
 
@@ -16,10 +17,14 @@ def create_tags_from_transcription(url, transcription):
     for segment in transcription["segments"]:
         timestamp = int(segment["start"])
         formatted_timestamp = format_seconds(timestamp)
-        timestamped_url = f"{url}&t={timestamp}s" if url else ""
+        timestamped_url = f"{url}&t={timestamp}s" if is_yt(url) else ""
         text = segment["text"]
         tags.append(f"[{formatted_timestamp}]({timestamped_url}) {text}")
     return tags
+
+
+def is_yt(url):
+    return re.match(r"^https?://(www\.)?youtu(\.be|be\.com)", url)
 
 
 if __name__ == "__main__":
