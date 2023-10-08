@@ -44,9 +44,9 @@ def yt_dlp(url):
         [
             "yt-dlp",
             "--format",
-            "bestaudio/best",
-            "--format-sort",
-            "+size,+br,+res,+fps",
+            "bestaudio.2/bestaudio/best.2/best",
+            # "--format-sort",
+            # "+size,+br,+res,+fps",
             "--extract-audio",
             "--paths",
             "./audios",
