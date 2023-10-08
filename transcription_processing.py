@@ -8,10 +8,8 @@ import tagger
 
 
 def filter_no_speech(transcription, k=1.01, threshold=0.1):
-    no_speech = transcription.copy()
-    no_speech["segments"] = []
-    speech = transcription.copy()
-    speech["segments"] = []
+    speech_segments = []
+    no_speech_segments = []
 
     is_no_speech = True
     current_text = ""
@@ -19,17 +17,27 @@ def filter_no_speech(transcription, k=1.01, threshold=0.1):
         if s["no_speech_prob"] - k * np.exp(s["avg_logprob"]) > threshold or (
             is_no_speech and s["text"] == current_text
         ):
-            no_speech["segments"].append(s)
+            no_speech_segments.append(s)
             is_no_speech = True
             current_text = s["text"]
             continue
 
-        speech["segments"].append(s)
+        speech_segments.append(s)
         is_no_speech = False
         current_text = s["text"]
         continue
 
-    return no_speech, speech
+    speech = None
+    if speech_segments:
+        speech = transcription.copy()
+        speech["segments"] = speech_segments
+
+    no_speech = None
+    if no_speech_segments:
+        no_speech = transcription.copy()
+        no_speech["segments"] = no_speech_segments
+
+    return speech, no_speech
 
 
 def get_segment_scores(transcription):
