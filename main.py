@@ -74,44 +74,38 @@ if extension not in [".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".wav", ".webm"]:
 if args.translate:
     base_name += "[English]"
 
-speech = None
-no_speech = None
-
-speech_json = f"./jsons/{base_name}.json"
-no_speech_json = f"./jsons/{base_name}-no_speech.json"
-
 # Check if ./jsons/{base_name}.json exists
-if check_not_overwrite(speech_json):
-    with open(speech_json) as f:
-        speech = json.load(f)
-
-    if os.path.exists(no_speech_json):
-        with open(no_speech_json) as f:
-            no_speech = json.load(f)
+transcription_json = f"./jsons/{base_name}.json"
+if check_not_overwrite(transcription_json):
+    with open(transcription_json) as f:
+        transcription = json.load(f)
 else:
     transcription = (
         translate_audio(audio_file, args.prompt)
         if args.translate
         else transcribe_audio(audio_file, args.prompt, args.language)
     )
+    with open(transcription_json, "w") as f:
+        json.dump(transcription, f, indent=4, ensure_ascii=False)
 
-    # Filter out segments with no speech
-    speech, no_speech = filter_no_speech(transcription)
-
-    # Write the transcription to a file
-    if speech:
-        with open(speech_json, "w") as f:
-            json.dump(speech, f, indent=4, ensure_ascii=False)
-    if no_speech:
-        with open(no_speech_json, "w") as f:
-            json.dump(no_speech, f, indent=4, ensure_ascii=False)
-
-# Create tags from the transcription and write them to a file
-if speech:
-    speech_tags = create_tags_from_transcription(url, speech)
+    tags = create_tags_from_transcription(url, transcription)
     with open(f"timestamps/{base_name}.md", "w") as audio_file:
-        print(*speech_tags, sep="\\\n", file=audio_file, end="\n")
+        print(*tags, sep="\\\n", file=audio_file, end="\n")
+
+# Filter out segments with no speech
+speech, no_speech = filter_no_speech(transcription)
+
 if no_speech:
+    with open(f"./jsons/{base_name}-speech.json", "w") as f:
+        json.dump(speech, f, indent=4, ensure_ascii=False)
+
+    speech_tags = create_tags_from_transcription(url, speech)
+    with open(f"timestamps/{base_name}-speech.md", "w") as audio_file:
+        print(*speech_tags, sep="\\\n", file=audio_file, end="\n")
+
+    with open(f"./jsons/{base_name}-no_speech.json", "w") as f:
+        json.dump(no_speech, f, indent=4, ensure_ascii=False)
+
     no_speech_tags = create_tags_from_transcription(url, no_speech)
     with open(f"timestamps/{base_name}-no_speech.md", "w") as audio_file:
         print(*no_speech_tags, sep="\\\n", file=audio_file, end="\n")
