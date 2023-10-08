@@ -4,7 +4,7 @@ import subprocess
 
 
 def extract_metadata(file_path):
-    meta_data = subprocess.check_output(
+    meta_data = subprocess.run(
         [
             "ffprobe",
             "-v",
@@ -14,8 +14,10 @@ def extract_metadata(file_path):
             "-show_format",
             "-show_streams",
             file_path,
-        ]
-    )
+        ],
+        chekc=True,
+        capture_output=True,
+    ).stdout
     return json.loads(meta_data)
 
 
@@ -31,29 +33,35 @@ def extract_url_from_metadata(file_path):
 
 
 def getid(url):
-    result = subprocess.run(
-        ["yt-dlp", "--get-id", url], text=True, capture_output=True, check=True
-    )
-    video_id = result.stdout.strip()
+    video_id = subprocess.run(
+        ["yt-dlp", "--get-id", url], text=True, check=True, capture_output=True
+    ).stdout.strip()
     return video_id
 
 
 def yt_dlp(url):
-    output = subprocess.check_output(
+    output = subprocess.run(
         [
             "yt-dlp",
             "--format",
-            "139",
+            "bestaudio/best",
+            "--format-sort",
+            "+size,+br,+res,+fps",
+            "--extract-audio",
             "--paths",
             "./audios",
             "--output",
             "%(id)s.%(ext)s",
             "--embed-metadata",
             url,
-        ]
-    )
-    destination = re.search(
-        r"\[download\] (?:Destination: (.*)|(.*) has already been downloaded)",
-        output.decode("utf-8"),
-    )
-    return destination.group(1) or destination.group(2)
+        ],
+        text=True,
+        check=True,
+        capture_output=True,
+    ).stdout
+    destination = re.findall(
+        r"\[(?:.*)\] (?:Destination: (.*)|(.*) has already been downloaded)",
+        output,
+    )[-1]
+    destination = destination[0] or destination[1]
+    return destination
