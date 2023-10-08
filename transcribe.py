@@ -18,7 +18,7 @@ def split_audio(file, split_sec=3600):
             "-i",
             file,
             "-b:a",
-            "64k",
+            "50k",
             "-f",
             "segment",
             "-segment_time",
