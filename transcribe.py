@@ -13,13 +13,23 @@ def split_audio(file, split_sec=3600):
 
     # Split the audio file into smaller chunks
     subprocess.run(
-        f'ffmpeg -i "{file}" '
-        f'-f segment -segment_time {split_sec} '
-        f'-c copy "{root}-%03d{ext}"',
-        shell=True, check=True)
+        [
+            "ffmpeg",
+            "-i",
+            file,
+            "-b:a",
+            "64k",
+            "-f",
+            "segment",
+            "-segment_time",
+            str(split_sec),
+            f"{root}-%03d{ext}",
+        ],
+        capture_output=True,
+    )
 
     # Return the list of output filenames
-    return glob.glob(f'{root}-*{ext}')
+    return glob.glob(f"{root}-*{ext}")
 
 
 def merge(transcriptions):
@@ -34,18 +44,20 @@ def merge(transcriptions):
     id = 0
     for t in transcriptions:
         for s in t["segments"]:
-            transcription["segments"].append({
-                "id": id,
-                "seek": s["seek"] + transcription["duration"] * 100,
-                "start": s["start"] + transcription["duration"],
-                "end": s["end"] + transcription["duration"],
-                "text": s["text"],
-                "tokens": s["tokens"],
-                "temperature": s["temperature"],
-                "avg_logprob": s["avg_logprob"],
-                "compression_ratio": s["compression_ratio"],
-                "no_speech_prob": s["no_speech_prob"]
-            })
+            transcription["segments"].append(
+                {
+                    "id": id,
+                    "seek": s["seek"] + transcription["duration"] * 100,
+                    "start": s["start"] + transcription["duration"],
+                    "end": s["end"] + transcription["duration"],
+                    "text": s["text"],
+                    "tokens": s["tokens"],
+                    "temperature": s["temperature"],
+                    "avg_logprob": s["avg_logprob"],
+                    "compression_ratio": s["compression_ratio"],
+                    "no_speech_prob": s["no_speech_prob"],
+                }
+            )
             id += 1
 
         transcription["duration"] += t["duration"]
