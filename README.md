@@ -1,13 +1,13 @@
 # Whisper YouTube Transcriber
 
 Transcribes an audio source to text using the OpenAI's Whisper API. The result is saved in the `timestamps/` folder as a
-Markdown file. In case the input is a YouTube URL, the timestamps link to the video at the corresponding time.
+Markdown file. The input can be URL to a video source, it will use [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) to download the video and proceed with transcribing.
 
 ## Result Folders
 
 - `audios/` folder contains extracted audio files from YouTube videos when the input is a YouTube URL. Large audio files are split into smaller chunks are also saved here.
-- `jsons/` folder contains responses from Whisper API transcribing/translating the audio files. The data follows the schema in [`transcription.schema.json`](https://github.com/tunaflsh/whisper-youtube-transcriber/blob/main/transcription.example.json). Some non-speech audio segments may be falsely transcribed as speech. These segments are filtered out and saved into `json/*-no_speech.json` files.
-- `timestamps/` folder contains the resulting Markdown files, that includes transcription and their timestamps. The timestamps link to the YouTube video at the matching times when the input when the input is a YouTube URL or the input file has the source YouTube URL embedded to the metadata under `format:tags:comment`. The `*-no_speech.json` files are also timestamped and saved here as `timestamps/*-no_speech.md`.
+- `jsons/` folder contains responses from Whisper API transcribing/translating the audio files. The data follows the schema in [`transcription.schema.json`](https://github.com/tunaflsh/whisper-youtube-transcriber/blob/main/transcription.example.json). Some non-speech audio segments may be falsely transcribed as speech by the Whisper model. These segments are filtered out and saved into `json/*-no_speech.json` and `json/*-speech.json` files.
+- `timestamps/` folder contains the resulting Markdown files, that includes transcription and their timestamps. The timestamps link to the YouTube video at the matching times when the input when the input is a YouTube URL or the input file has the source YouTube URL embedded to the metadata under `format:tags:comment`. The `*-no_speech.json` and `*-speech.json` files are also timestamped and saved here as `timestamps/*-no_speech.md` and `timestamps/*-speech.md`.
 
 ## Usage
 
