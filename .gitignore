@@ -170,3 +170,4 @@ timestamps/
 # Tests/Experiments/Data
 text*.txt
 *.csv
+*.jsonl
