@@ -15,7 +15,7 @@ def extract_metadata(file_path):
             "-show_streams",
             file_path,
         ],
-        chekc=True,
+        check=True,
         capture_output=True,
     ).stdout
     return json.loads(meta_data)
