@@ -44,7 +44,7 @@ args = parser.parse_args()
 
 
 def check_not_overwrite(file):
-    if (files := glob.glob(file)) and input(
+    if (files := glob.glob(glob.escape(file))) and input(
         f'File "{files[0]}" already exists. Overwrite? Default is "no". [(y)es/(n)o] '
     ).lower() not in ["y", "yes"]:
         return files[0]

@@ -29,7 +29,7 @@ def split_audio(file, split_sec=3600):
     )
 
     # Return the list of output filenames
-    return glob.glob(f"{root}-*{ext}")
+    return glob.glob(f"{glob.escape(root)}-*{glob.escape(ext)}")
 
 
 def merge(transcriptions):
