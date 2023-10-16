@@ -24,7 +24,7 @@ def create_tags_from_transcription(url, transcription):
 
 
 def is_yt(url):
-    return re.match(r"^https?://(www\.)?youtu(\.be|be\.com)", url)
+    return re.match(r"^https?://(www\.)?youtu(\.be|be\.com)", url or "")
 
 
 if __name__ == "__main__":
