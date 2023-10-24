@@ -17,6 +17,7 @@ def split_audio(file, split_sec=3600):
             "ffmpeg",
             "-i",
             file,
+            "-vn",
             "-b:a",
             "50k",
             "-f",
