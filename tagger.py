@@ -1,9 +1,12 @@
 import argparse
+import json
+import logging
 import os
 import re
 
-import json
 from audio_processing import extract_url_from_metadata
+
+logger = logging.getLogger(__name__)
 
 
 def format_seconds(seconds: int):
@@ -13,6 +16,8 @@ def format_seconds(seconds: int):
 
 
 def create_tags_from_transcription(url, transcription):
+    logger.debug(f"Creating tags ({url=}).")
+
     tags = []
     for segment in transcription["segments"]:
         timestamp = int(segment["start"])

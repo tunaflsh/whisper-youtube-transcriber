@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 import argparse
-import glob
-import json
-import os
-import re
-
-from audio_processing import extract_url_from_metadata, getid, yt_dlp
-from tagger import create_tags_from_transcription
-from transcribe import transcribe_audio, translate_audio
-from transcription_processing import filter_no_speech
+import logging
+import logging.config
+from logging_config import logging_config
 
 # Set up argument parser
 parser = argparse.ArgumentParser(
@@ -39,12 +33,36 @@ parser.add_argument(
     action="store_true",
     help="Translate the audio file to English.",
 )
+parser.add_argument(
+    "-d",
+    "--debug",
+    nargs="?",
+    const="",
+    default=[],
+    action="append",
+    help="Enable debug mode. If a list of modules is provided, only those modules will be debugged.",
+)
 
 args = parser.parse_args()
+logging.config.dictConfig(logging_config(args.debug))
+logger = logging.getLogger(__name__)
+
+import glob
+import json
+import os
+import re
+
+from audio_processing import extract_url_from_metadata, getid, yt_dlp
+from tagger import create_tags_from_transcription
+from transcribe import transcribe_audio, translate_audio
+from transcription_processing import filter_no_speech
 
 
 def check_not_overwrite(file):
+    logger.debug(f"Checking if {file} exists.")
+
     files = glob.glob(file)
+    logger.debug(f"Found: {files}")
 
     if files and input(
         f'File "{files[0]}" already exists. Overwrite? Default is "no". [(y)es/(n)o] '
@@ -55,6 +73,8 @@ def check_not_overwrite(file):
 
 # Check if input is a URL
 if re.match(r"^https?://", args.input):
+    logger.debug(f"Input is a URL: {args.input}")
+
     # Download the audio file
     url = args.input
     video_id = getid(url)
@@ -64,6 +84,8 @@ if re.match(r"^https?://", args.input):
         url
     )
 else:
+    logger.debug(f"Input is a file: {args.input}")
+
     audio_file = args.input
     url = extract_url_from_metadata(audio_file)
 
@@ -71,9 +93,11 @@ else:
 base_name, extension = os.path.splitext(os.path.basename(audio_file))
 
 if extension not in [".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".wav", ".webm"]:
-    raise argparse.ArgumentTypeError(
+    error = argparse.ArgumentTypeError(
         f"Invalid file extension: {extension}. The file extension must be one of these formats: mp3, mp4, mpeg, mpga, m4a, wav, or webm."
     )
+    logger.error(error)
+    raise error
 
 if args.translate:
     base_name += "[English]"
@@ -84,11 +108,13 @@ if check_not_overwrite(f"./jsons/{glob.escape(base_name)}.json"):
     with open(transcription_json) as f:
         transcription = json.load(f)
 else:
-    transcription = (
-        translate_audio(audio_file, args.prompt)
-        if args.translate
-        else transcribe_audio(audio_file, args.prompt, args.language)
-    )
+    logger.debug(f"Calling OpenAI API.")
+
+    if args.translate:
+        transcription = translate_audio(audio_file, args.prompt)
+    else:
+        transcription = transcribe_audio(audio_file, args.prompt, args.language)
+
     with open(transcription_json, "w") as f:
         json.dump(transcription, f, indent=4, ensure_ascii=False)
 

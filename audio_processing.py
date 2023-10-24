@@ -1,6 +1,9 @@
 import json
 import re
 import subprocess
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def extract_metadata(file_path):
@@ -22,12 +25,14 @@ def extract_metadata(file_path):
 
 
 def extract_url_from_metadata(file_path):
+    logger.debug(f"Trying to extract URL from {file_path}")
+
     metadata = extract_metadata(file_path)
     try:
         url = metadata["format"]["tags"]["comment"]
     except KeyError as e:
         file = file_path.replace('"', '\\"')
-        print(f'KeyError: {e} in the metadata of "{file}"')
+        logger.warning(f'KeyError: {e} in the metadata of "{file}"')
         url = None
     return url
 
@@ -40,6 +45,8 @@ def getid(url):
 
 
 def yt_dlp(url):
+    logger.debug(f"Downloading {url}")
+
     output = subprocess.run(
         [
             "yt-dlp",
@@ -64,4 +71,6 @@ def yt_dlp(url):
         output,
     )[-1]
     destination = destination[0] or destination[1]
+
+    logger.debug(f"Downloaded {url} to {destination}")
     return destination

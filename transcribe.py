@@ -1,18 +1,23 @@
 import glob
+import logging
 import os
 import subprocess
 
 import openai
+
+logger = logging.getLogger(__name__)
 
 # Load your OpenAI API key from an environment variable
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 def split_audio(file, split_sec=3600):
+    logger.debug(f"Splitting {file} into {split_sec} second chunks.")
+
     root, ext = os.path.splitext(file)
 
     # Split the audio file into smaller chunks
-    subprocess.run(
+    output = subprocess.run(
         [
             "ffmpeg",
             "-i",
@@ -28,12 +33,20 @@ def split_audio(file, split_sec=3600):
         ],
         capture_output=True,
     )
+    if output.returncode != 0:    
+        logger.debug(f"FFmpeg stderr: {output.stderr.decode()}")
+        logger.debug(f"FFmpeg stdout: {output.stdout.decode()}")
+        raise Exception(f"FFmpeg failed to split {file} into {split_sec} second chunks.")
 
     # Return the list of output filenames
-    return glob.glob(f"{glob.escape(root)}-*{glob.escape(ext)}")
+    files = glob.glob(f"{glob.escape(root)}-*{glob.escape(ext)}")
+    logger.debug(f"Split {file} into {len(files)} files.")
+    return files
 
 
 def merge(transcriptions):
+    logger.debug(f"Merging {len(transcriptions)} transcriptions.")
+
     transcription = {
         "task": transcriptions[0]["task"],
         "language": transcriptions[0]["language"],
@@ -77,6 +90,8 @@ def transcribe_audio(file, prompt=None, language=None):
 
     responses = []
     for file in files:
+        logger.debug(f"Transcribing {file}.")
+
         # Open the audio file
         with open(file, "rb") as f:
             # Transcribe the audio file using the Whisper model
@@ -103,6 +118,8 @@ def translate_audio(file, prompt=None):
 
     responses = []
     for file in files:
+        logger.debug(f"Translating {file}.")
+
         # Open the audio file
         with open(file, "rb") as f:
             # Translate the audio file to English using the Whisper model
