@@ -4,7 +4,7 @@ import logging
 import os
 import re
 
-from audio_processing import extract_url_from_metadata
+from audio_processing import extract_url
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ def format_seconds(seconds: int):
     return f"{h:d}:{m:02d}:{s:02d}" if h else f"{m:d}:{s:02d}"
 
 
-def create_tags_from_transcription(url, transcription):
+def create_tags(url, transcription):
     logger.debug(f"Creating tags ({url=}).")
 
     tags = []
@@ -42,12 +42,12 @@ if __name__ == "__main__":
     json_file = f"jsons/{basename}.json"
     tag_file = f"timestamps/{basename}.md"
 
-    url = extract_url_from_metadata(args)
+    url = extract_url(args)
 
     with open(json_file) as f:
         transcription = json.load(f)
 
-    tags = create_tags_from_transcription(url, transcription)
+    tags = create_tags(url, transcription)
 
     with open(tag_file, "w") as f:
         print(*tags, sep="\\\n", file=f, end="\n")

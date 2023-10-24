@@ -52,8 +52,8 @@ import json
 import os
 import re
 
-from audio_processing import extract_url_from_metadata, getid, yt_dlp
-from tagger import create_tags_from_transcription
+from audio_processing import extract_url, getid, yt_dlp
+from tagger import create_tags
 from transcribe import transcribe_audio, translate_audio
 from transcription_processing import filter_no_speech
 
@@ -87,7 +87,7 @@ else:
     logger.debug(f"Input is a file: {args.input}")
 
     audio_file = args.input
-    url = extract_url_from_metadata(audio_file)
+    url = extract_url(audio_file)
 
 # Get the base name of the audio file
 base_name, extension = os.path.splitext(os.path.basename(audio_file))
@@ -118,7 +118,7 @@ else:
     with open(transcription_json, "w") as f:
         json.dump(transcription, f, indent=4, ensure_ascii=False)
 
-    tags = create_tags_from_transcription(url, transcription)
+    tags = create_tags(url, transcription)
     with open(f"timestamps/{base_name}.md", "w") as audio_file:
         print(*tags, sep="\\\n", file=audio_file, end="\n")
 
@@ -129,13 +129,13 @@ if no_speech:
     with open(f"./jsons/{base_name}-speech.json", "w") as f:
         json.dump(speech, f, indent=4, ensure_ascii=False)
 
-    speech_tags = create_tags_from_transcription(url, speech)
+    speech_tags = create_tags(url, speech)
     with open(f"timestamps/{base_name}-speech.md", "w") as audio_file:
         print(*speech_tags, sep="\\\n", file=audio_file, end="\n")
 
     with open(f"./jsons/{base_name}-no_speech.json", "w") as f:
         json.dump(no_speech, f, indent=4, ensure_ascii=False)
 
-    no_speech_tags = create_tags_from_transcription(url, no_speech)
+    no_speech_tags = create_tags(url, no_speech)
     with open(f"timestamps/{base_name}-no_speech.md", "w") as audio_file:
         print(*no_speech_tags, sep="\\\n", file=audio_file, end="\n")

@@ -24,7 +24,7 @@ def extract_metadata(file_path):
     return json.loads(meta_data)
 
 
-def extract_url_from_metadata(file_path):
+def extract_url(file_path):
     logger.debug(f"Trying to extract URL from {file_path}")
 
     metadata = extract_metadata(file_path)
