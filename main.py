@@ -44,7 +44,9 @@ args = parser.parse_args()
 
 
 def check_not_overwrite(file):
-    if (files := glob.glob(glob.escape(file))) and input(
+    files = glob.glob(file)
+
+    if files and input(
         f'File "{files[0]}" already exists. Overwrite? Default is "no". [(y)es/(n)o] '
     ).lower() not in ["y", "yes"]:
         return files[0]
@@ -58,7 +60,9 @@ if re.match(r"^https?://", args.input):
     video_id = getid(url)
 
     # Check if ./audios/{video_id}.* exists
-    audio_file = check_not_overwrite(f"./audios/{video_id}.*") or yt_dlp(url)
+    audio_file = check_not_overwrite(f"./audios/{glob.escape(video_id)}.*") or yt_dlp(
+        url
+    )
 else:
     audio_file = args.input
     url = extract_url_from_metadata(audio_file)
@@ -76,7 +80,7 @@ if args.translate:
 
 # Check if ./jsons/{base_name}.json exists
 transcription_json = f"./jsons/{base_name}.json"
-if check_not_overwrite(transcription_json):
+if check_not_overwrite(f"./jsons/{glob.escape(base_name)}.json"):
     with open(transcription_json) as f:
         transcription = json.load(f)
 else:
