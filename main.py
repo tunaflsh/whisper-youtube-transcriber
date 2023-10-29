@@ -100,6 +100,7 @@ if extension not in [".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".wav", ".webm"]:
     raise error
 
 if args.translate:
+    logger.debug(f"Translation enabled.")
     base_name += "[English]"
 
 # Check if ./jsons/{base_name}.json exists
@@ -108,17 +109,19 @@ if check_not_overwrite(f"./jsons/{glob.escape(base_name)}.json"):
     with open(transcription_json) as f:
         transcription = json.load(f)
 else:
-    logger.debug(f"Calling OpenAI API.")
+    logger.info(f"Transcribing...")
 
     if args.translate:
         transcription = translate_audio(audio_file, args.prompt)
     else:
         transcription = transcribe_audio(audio_file, args.prompt, args.language)
 
+    logger.info(f"Saving transcription to {transcription_json}")
     with open(transcription_json, "w") as f:
         json.dump(transcription, f, indent=4, ensure_ascii=False)
 
     tags = create_tags(url, transcription)
+    logger.info(f"Saving timestamps to timestamps/{base_name}.md")
     with open(f"timestamps/{base_name}.md", "w") as audio_file:
         print(*tags, sep="\\\n", file=audio_file, end="\n")
 
@@ -126,16 +129,20 @@ else:
 speech, no_speech = filter_no_speech(transcription)
 
 if no_speech:
+    logger.info(f"[Experimental] Saving segments with speech to jsons/{base_name}-speech.json")
     with open(f"./jsons/{base_name}-speech.json", "w") as f:
         json.dump(speech, f, indent=4, ensure_ascii=False)
 
     speech_tags = create_tags(url, speech)
+    logger.info(f"[Experimental] Saving timestamps of segments with speech to timestamps/{base_name}-speech.md")
     with open(f"timestamps/{base_name}-speech.md", "w") as audio_file:
         print(*speech_tags, sep="\\\n", file=audio_file, end="\n")
 
+    logger.info(f"[Experimental] Saving segments with no speech to jsons/{base_name}-no_speech.json")
     with open(f"./jsons/{base_name}-no_speech.json", "w") as f:
         json.dump(no_speech, f, indent=4, ensure_ascii=False)
 
     no_speech_tags = create_tags(url, no_speech)
+    logger.info(f"[Experimental] Saving timestamps of segments with no speech to timestamps/{base_name}-no_speech.md")
     with open(f"timestamps/{base_name}-no_speech.md", "w") as audio_file:
         print(*no_speech_tags, sep="\\\n", file=audio_file, end="\n")
