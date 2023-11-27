@@ -11,7 +11,7 @@ Markdown file. The input can be URL to a video source, it will use [`yt-dlp`](ht
 
 ## Usage
 
-```python console
+```
 python main.py [-h] [-p PROMPT] [-l LANGUAGE] [-t] input
 
 positional arguments:
