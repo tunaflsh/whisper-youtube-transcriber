@@ -21,14 +21,13 @@ positional arguments:
 options:
   -h, --help            show this help message and exit
   -p PROMPT, --prompt PROMPT
-                        An optional text to guide the model's style or continue a previous audio segment. The prompt
-                        should match the audio language.
+                        A list of correct word spellings for problematic words.
   -l LANGUAGE, --language LANGUAGE
                         The language of the input audio. Supplying the input language in ISO-639-1 format will improve
                         accuracy and latency.
   -t, --translate       Translate the audio file to English.
 ```
 
-Prompt examples can be found in [`prompt.example.md`](https://github.com/tunaflsh/whisper-youtube-transcriber/blob/main/prompt.example.md).
-> [!NOTE]
-> The examples are not comprehensive and may not work in some contexts.
+## Prompting
+
+See OpenAI's [documantation](https://platform.openai.com/docs/guides/speech-to-text/prompting).
