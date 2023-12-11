@@ -3,12 +3,12 @@ import logging
 import os
 import subprocess
 
-import openai
-
-logger = logging.getLogger(__name__)
+from openai import OpenAI
 
 # Load your OpenAI API key from an environment variable
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+logger = logging.getLogger(__name__)
 
 
 def split_audio(file, split_sec=3600):
@@ -33,10 +33,12 @@ def split_audio(file, split_sec=3600):
         ],
         capture_output=True,
     )
-    if output.returncode != 0:    
+    if output.returncode != 0:
         logger.debug(f"FFmpeg stderr: {output.stderr.decode()}")
         logger.debug(f"FFmpeg stdout: {output.stdout.decode()}")
-        raise Exception(f"FFmpeg failed to split {file} into {split_sec} second chunks.")
+        raise Exception(
+            f"FFmpeg failed to split {file} into {split_sec} second chunks."
+        )
 
     # Return the list of output filenames
     files = glob.glob(f"{glob.escape(root)}-*{glob.escape(ext)}")
@@ -95,7 +97,7 @@ def transcribe_audio(file, prompt=None, language=None):
         # Open the audio file
         with open(file, "rb") as f:
             # Transcribe the audio file using the Whisper model
-            response = openai.Audio.transcribe(
+            response = client.audio.transcribe(
                 model="whisper-1",
                 file=f,
                 prompt=prompt,
@@ -123,7 +125,7 @@ def translate_audio(file, prompt=None):
         # Open the audio file
         with open(file, "rb") as f:
             # Translate the audio file to English using the Whisper model
-            response = openai.Audio.translate(
+            response = client.audio.translate(
                 model="whisper-1", file=f, prompt=prompt, response_format="verbose_json"
             )
 
