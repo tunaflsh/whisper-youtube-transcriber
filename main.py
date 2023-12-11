@@ -17,7 +17,7 @@ parser.add_argument(
     "-p",
     "--prompt",
     type=str,
-    help="An optional text to guide the model's style or continue a previous audio segment. The prompt should match the audio language.",
+    help="A list of correct word spellings for problematic words.",
     default=None,
 )
 parser.add_argument(
