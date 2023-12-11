@@ -65,7 +65,7 @@ def check_not_overwrite(file):
     logger.debug(f"Found: {files}")
 
     if files and input(
-        f'File "{files[0]}" already exists. Overwrite? Default is "no". [(y)es/(n)o] '
+        f'File "{files[0]}" already exists. Overwrite? [y/N] '
     ).lower() not in ["y", "yes"]:
         return files[0]
     return None
