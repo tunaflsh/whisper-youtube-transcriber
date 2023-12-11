@@ -4,9 +4,10 @@ import os
 import subprocess
 
 from openai import OpenAI
+from openai.types.audio.transcription import Transcription
+from openai.types.audio.translation import Translation
 
-# Load your OpenAI API key from an environment variable
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI()
 
 logger = logging.getLogger(__name__)
 
@@ -46,12 +47,12 @@ def split_audio(file, split_sec=3600):
     return files
 
 
-def merge(transcriptions):
+def merge(transcriptions: list[Transcription | Translation]):
     logger.debug(f"Merging {len(transcriptions)} transcriptions.")
 
     transcription = {
-        "task": transcriptions[0]["task"],
-        "language": transcriptions[0]["language"],
+        "task": transcriptions[0].task,
+        "language": transcriptions[0].language,
         "duration": 0.00,
         "text": "",
         "segments": [],
@@ -59,7 +60,7 @@ def merge(transcriptions):
 
     id = 0
     for t in transcriptions:
-        for s in t["segments"]:
+        for s in t.segments:
             transcription["segments"].append(
                 {
                     "id": id,
@@ -76,8 +77,8 @@ def merge(transcriptions):
             )
             id += 1
 
-        transcription["duration"] += t["duration"]
-        transcription["text"] += t["text"]
+        transcription["duration"] += t.duration
+        transcription["text"] += t.text
 
     return transcription
 
@@ -97,7 +98,7 @@ def transcribe_audio(file, prompt=None, language=None):
         # Open the audio file
         with open(file, "rb") as f:
             # Transcribe the audio file using the Whisper model
-            response = client.audio.transcribe(
+            response = client.audio.transcriptions.create(
                 model="whisper-1",
                 file=f,
                 prompt=prompt,
@@ -125,7 +126,7 @@ def translate_audio(file, prompt=None):
         # Open the audio file
         with open(file, "rb") as f:
             # Translate the audio file to English using the Whisper model
-            response = client.audio.translate(
+            response = client.audio.translations.create(
                 model="whisper-1", file=f, prompt=prompt, response_format="verbose_json"
             )
 
