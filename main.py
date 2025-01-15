@@ -117,11 +117,13 @@ else:
         transcription = transcribe_audio(audio_file, args.prompt, args.language)
 
     logger.info(f"Saving transcription to {transcription_json}")
+    os.makedirs(os.path.dirname(transcription_json), exist_ok=True)
     with open(transcription_json, "w") as f:
         json.dump(transcription, f, indent=4, ensure_ascii=False)
 
     tags = create_tags(url, transcription)
     logger.info(f"Saving timestamps to timestamps/{base_name}.md")
+    os.makedirs(os.path.dirname(f"timestamps/{base_name}.md"), exist_ok=True)
     with open(f"timestamps/{base_name}.md", "w") as audio_file:
         print(*tags, sep="\\\n", file=audio_file, end="\n")
 
@@ -130,19 +132,23 @@ speech, no_speech = filter_no_speech(transcription)
 
 if no_speech:
     logger.info(f"[Experimental] Saving segments with speech to jsons/{base_name}-speech.json")
+    os.makedirs(os.path.dirname(f"./jsons/{base_name}-speech.json"), exist_ok=True)
     with open(f"./jsons/{base_name}-speech.json", "w") as f:
         json.dump(speech, f, indent=4, ensure_ascii=False)
 
     speech_tags = create_tags(url, speech)
     logger.info(f"[Experimental] Saving timestamps of segments with speech to timestamps/{base_name}-speech.md")
+    os.makedirs(os.path.dirname(f"timestamps/{base_name}-speech.md"), exist_ok=True)
     with open(f"timestamps/{base_name}-speech.md", "w") as audio_file:
         print(*speech_tags, sep="\\\n", file=audio_file, end="\n")
 
     logger.info(f"[Experimental] Saving segments with no speech to jsons/{base_name}-no_speech.json")
+    os.makedirs(os.path.dirname(f"./jsons/{base_name}-no_speech.json"), exist_ok=True)
     with open(f"./jsons/{base_name}-no_speech.json", "w") as f:
         json.dump(no_speech, f, indent=4, ensure_ascii=False)
 
     no_speech_tags = create_tags(url, no_speech)
     logger.info(f"[Experimental] Saving timestamps of segments with no speech to timestamps/{base_name}-no_speech.md")
+    os.makedirs(os.path.dirname(f"timestamps/{base_name}-no_speech.md"), exist_ok=True)
     with open(f"timestamps/{base_name}-no_speech.md", "w") as audio_file:
         print(*no_speech_tags, sep="\\\n", file=audio_file, end="\n")

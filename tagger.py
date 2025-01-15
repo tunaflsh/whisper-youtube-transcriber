@@ -49,5 +49,6 @@ if __name__ == "__main__":
 
     tags = create_tags(url, transcription)
 
+    os.makedirs(os.path.dirname(tag_file), exist_ok=True)
     with open(tag_file, "w") as f:
         print(*tags, sep="\\\n", file=f, end="\n")
