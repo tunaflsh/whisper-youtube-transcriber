@@ -47,10 +47,10 @@ def split_audio(file, split_sec=3600):
     return files
 
 
-def merge(transcriptions: list[Transcription | Translation]):
+def merge(transcriptions: list[Transcription | Translation], merged_transcription=None):
     logger.debug(f"Merging {len(transcriptions)} transcriptions.")
 
-    transcription = {
+    transcription = merged_transcription or {
         "task": transcriptions[0].task,
         "language": transcriptions[0].language,
         "duration": 0.00,
@@ -64,15 +64,15 @@ def merge(transcriptions: list[Transcription | Translation]):
             transcription["segments"].append(
                 {
                     "id": id,
-                    "seek": s["seek"] + transcription["duration"] * 100,
-                    "start": s["start"] + transcription["duration"],
-                    "end": s["end"] + transcription["duration"],
-                    "text": s["text"],
-                    "tokens": s["tokens"],
-                    "temperature": s["temperature"],
-                    "avg_logprob": s["avg_logprob"],
-                    "compression_ratio": s["compression_ratio"],
-                    "no_speech_prob": s["no_speech_prob"],
+                    "seek": s.seek + transcription["duration"] * 100,
+                    "start": s.start + transcription["duration"],
+                    "end": s.end + transcription["duration"],
+                    "text": s.text,
+                    "tokens": s.tokens,
+                    "temperature": s.temperature,
+                    "avg_logprob": s.avg_logprob,
+                    "compression_ratio": s.compression_ratio,
+                    "no_speech_prob": s.no_speech_prob,
                 }
             )
             id += 1
@@ -91,7 +91,7 @@ def transcribe_audio(file, prompt=None, language=None):
         # Split the audio file into smaller chunks
         files = split_audio(file)
 
-    responses = []
+    merged_transcription = None
     for file in files:
         logger.debug(f"Transcribing {file}.")
 
@@ -106,9 +106,9 @@ def transcribe_audio(file, prompt=None, language=None):
                 language=language,
             )
 
-        responses.append(response)
+        merged_transcription = merge([response], merged_transcription)
 
-    return merge(responses)
+    return merged_transcription
 
 
 def translate_audio(file, prompt=None):
@@ -119,7 +119,7 @@ def translate_audio(file, prompt=None):
         # Split the audio file into smaller chunks
         files = split_audio(file)
 
-    responses = []
+    merged_translation = None
     for file in files:
         logger.debug(f"Translating {file}.")
 
@@ -130,6 +130,6 @@ def translate_audio(file, prompt=None):
                 model="whisper-1", file=f, prompt=prompt, response_format="verbose_json"
             )
 
-        responses.append(response)
+        merged_translation = merge([response], merged_translation)
 
-    return merge(responses)
+    return merged_translation
